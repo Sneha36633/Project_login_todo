@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Login & Register</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .card {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 350px;
+      text-align: center;
+    }
+
+    h2 {
+      color: #1a73e8;
+      margin-bottom: 1.5rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #1557b0;
+    }
+
+    .toggle {
+      margin-top: 15px;
+      font-size: 14px;
+      cursor: pointer;
+      color: #1a73e8;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h2 id="title">Login</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="handleSubmit()" id="btnText">Login</button>
+    <p class="toggle" onclick="toggleMode()" id="toggleBtn">Create new account</p>
+  </div>
+
+  <script>
+    let isLogin = true;
+
+    function toggleMode() {
+      isLogin = !isLogin;
+      document.getElementById("title").innerText = isLogin ? "Login" : "Register";
+      document.getElementById("btnText").innerText = isLogin ? "Login" : "Sign Up";
+      document.getElementById("toggleBtn").innerText = isLogin ? "Create new account" : "Already have an account? Login";
+    }
+
+    async function handleSubmit() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const path = isLogin ? "/login" : "/register";
+
+      try {
+        const res = await fetch(`http://localhost:5000${path}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (isLogin) {
+          if (data.success) {
+            localStorage.setItem("token", data.token);
+            window.location.href = "todo.html";
+          } else {
+            alert(data.message);
+          }
+        } else {
+          if (data.success) {
+            alert("Registration Successful! Please login.");
+            toggleMode();
+          } else {
+            alert(data.message);
+          }
+        }
+      } catch (err) {
+        alert("Server error. Please try again later.");
+      }
+    }
+  </script>
+</body>
+
+</html>
